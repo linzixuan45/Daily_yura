@@ -29,7 +29,6 @@ jobs:
       - name: install package
         run: |
              pip install wechatpy
-             pip install http
              pip install requests
       
       - name: Run a one-line script
