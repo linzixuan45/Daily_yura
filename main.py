@@ -32,7 +32,7 @@ def star(key, star_name):
     ret = ret.content.decode('utf8').replace("'", '"')
     data_json = json.loads(ret)
     message = f"星座名称：{star_name}，"
-    for i, news in enumerate(data_json['newslist']):
+    for i, news in enumerate(data_json['newslist'][:-1]):
         if i % 3 == 0:
             message += f"{news['type']}: {news['content']}, " + '\n'
         else:
@@ -100,7 +100,6 @@ class WeMessage:
         url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
         res = requests.get(url).json()
         weather = res['data']['list'][0]
-        print(weather)
         weather_message = f"{weather['city']}, 天气：{weather['weather']}，" + f"温度：{math.floor(weather['temp'])}，" + f"湿度：{weather['humidity']}，" + f"风力等级：{weather['wind']}"
         return weather_message
 
@@ -121,20 +120,19 @@ class WeMessage:
             "words": {"value": get_words(), "color": get_random_color()},
             "song_words":{"value": song_word(self.tianapi_key), "color": get_random_color()},
         }
-        data01 = {
-            "star0": {"value": star_message0, "color": "#%06x" % 0x8E236B},
-            "star1": {"value": last_message0, "color": "#%06x" % 0x8E236B},
-        }
-        data02 = {
-            "star0": {"value": star_message1, "color": "#%06x" % 0x8E236B},
-            "star1": {"value": last_message1, "color": "#%06x" % 0x8E236B},
-        }
+        star_0 = [{"star": {"value": star_message0, "color": "#%06x" % 0x8E236B}},
+                  {"star": {"value": last_message0, "color": "#%06x" % 0x8E236B}}]
+        star_1 = [{"star": {"value": star_message1, "color": "#%06x" % 0x8E236B}},
+                  {"star": {"value": last_message1, "color": "#%06x" % 0x8E236B}}]
 
         for i in range(len(self.client_info['USER_ID'])):
             res = wm.send_template(self.client_info['USER_ID'][i], self.client_info['TEMPLATE_ID'], data0)
 
-            for value in[data01, data02]:
-                res = wm.send_template(self.client_info['USER_ID'][i], "L3D9bcUp6ee_lLDJTPPyCMwe15udcWeWLiLIt9XC32A", value)
+            for value in[star_0, star_1]:
+                for key_message in value:
+                    res = wm.send_template(self.client_info['USER_ID'][i], "vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc",
+                                       key_message)
+
 
         print("process have down")
 
@@ -156,6 +154,5 @@ if __name__ == "__main__":
 
 
 """
-今日星座解析： {{star0.DATA}} {{star1.DATA}} 
-
+{{star.DATA}} 
 """
