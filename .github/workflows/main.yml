@@ -30,7 +30,7 @@ jobs:
         run: |
              pip install wechatpy
              pip install http
-             pip install request
+             pip install requests
       
       - name: Run a one-line script
         run: python main.py
