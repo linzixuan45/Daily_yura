@@ -4,9 +4,11 @@ name: daily wechat publish  # 指定工作流的名字
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+  schedule:
+  # 定时任务，在每天的5点推送天气信息到邮箱
+    - cron: '0 1,4,17 * * *'
+    
   pull_request:
     branches: [ "main" ]
 
