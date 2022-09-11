@@ -3,9 +3,7 @@ import math
 from wechatpy import WeChatClient
 from wechatpy.client.api import WeChatMessage, WeChatTemplate
 import requests
-import os
 import random
-import http.client, urllib
 import json
 
 """
@@ -19,26 +17,20 @@ https://www.tianapi.com
 
 # -*- coding: utf-8 -*-
 def song_word(key):
-    conn = http.client.HTTPSConnection('api.tianapi.com')  # 接口域名
-    params = urllib.parse.urlencode({'key': key})
-    headers = {'Content-type': 'application/x-www-form-urlencoded'}
-    conn.request('POST', '/zmsc/index', params, headers)
-    res = conn.getresponse()
-    data = res.read().decode('utf-8')
-    data_json = json.loads(data)
+    url = f"http://api.tianapi.com/zmsc/index?key={key}"
+    ret = requests.get(url)
+    ret = ret.content.decode('utf8').replace("'", '"')
+    data_json = json.loads(ret)
     message = f"今日宋词：{data_json['newslist'][0]['content']}" + '\n' + f"出自：{data_json['newslist'][0]['source']}"
+    print(message)
     return message
 
 
 def star(key, star_name):
-    conn = http.client.HTTPSConnection('api.tianapi.com')  # 接口域名
-    params = urllib.parse.urlencode({'key': key, 'astro': star_name})
-    headers = {'Content-type': 'application/x-www-form-urlencoded'}
-    conn.request('POST', '/star/index', params, headers)
-    res = conn.getresponse()
-    data = res.read().decode('utf-8')
-    data_json = json.loads(data)
-
+    url = f"http://api.tianapi.com/star/index?key={key}&astro={star_name}"
+    ret = requests.get(url)
+    ret = ret.content.decode('utf8').replace("'", '"')
+    data_json = json.loads(ret)
     message = f"星座名称：{star_name}，"
     for i, news in enumerate(data_json['newslist']):
         if i % 3 == 0:
@@ -143,6 +135,8 @@ class WeMessage:
 
             for value in[data01, data02]:
                 res = wm.send_template(self.client_info['USER_ID'][i], "L3D9bcUp6ee_lLDJTPPyCMwe15udcWeWLiLIt9XC32A", value)
+
+        print("process have down")
 
 
 if __name__ == "__main__":
