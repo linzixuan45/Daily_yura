@@ -264,10 +264,9 @@ class WeMessage:
 
         for i in range(len(self.client_info['USER_ID'])):
             res = wm.send_template(self.client_info['USER_ID'][i], self.client_info['TEMPLATE_ID'], data0)
-
-            for value in [star_0, star_1]:
-                for key_message in value:
-                    if random.randint(0, 100) < 30:
+            if random.randint(0, 100) < 30:
+                for value in [star_0, star_1]:
+                    for key_message in value:
                         res = wm.send_template(self.client_info['USER_ID'][i],
                                                "vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc",
                                                key_message)
