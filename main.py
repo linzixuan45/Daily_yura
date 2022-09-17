@@ -1,10 +1,12 @@
-from datetime import date, datetime
+import datetime
+from datetime import date
 import math
 from wechatpy import WeChatClient
 from wechatpy.client.api import WeChatMessage, WeChatTemplate
 import requests
 import random
 import json
+from menstral_sheet import *
 
 """
 微信公众号平台  
@@ -78,7 +80,7 @@ class WeMessage:
         self.start()
 
     def _init_user_info(self):
-        self.today = datetime.now()
+        self.today = datetime.datetime.now()
         self.start_date = self.user0['START_DATE']
 
         self.city0 = self.user0['CITY']
@@ -87,12 +89,12 @@ class WeMessage:
         self.birthday1 = self.user1['BIRTHDAY']
 
     def get_count(self):
-        delta = self.today - datetime.strptime(self.start_date, "%Y-%m-%d")
+        delta = self.today - datetime.datetime.strptime(self.start_date, "%Y-%m-%d")
         return delta.days
 
     def get_birthday(self, birthday):
-        next = datetime.strptime(str(date.today().year) + "-" + birthday, "%Y-%m-%d")
-        if next < datetime.now():
+        next = datetime.datetime.strptime(str(date.today().year) + "-" + birthday, "%Y-%m-%d")
+        if next < datetime.datetime.now():
             next = next.replace(year=next.year + 1)
         return (next - self.today).days
 
@@ -118,7 +120,7 @@ class WeMessage:
             "love_days": {"value": self.get_count(), "color": "#%06x" % 0xFA8072},
             "birthday_left": {"value": self.get_birthday(self.user0['BIRTHDAY']), "color": "#%06x" % 0xFA8072},
             "words": {"value": get_words(), "color": get_random_color()},
-            "song_words":{"value": song_word(self.tianapi_key), "color": get_random_color()},
+            "song_words": {"value": song_word(self.tianapi_key), "color": get_random_color()},
         }
         star_0 = [{"star": {"value": star_message0, "color": "#%06x" % 0x8E236B}},
                   {"star": {"value": last_message0, "color": "#%06x" % 0x8E236B}}]
@@ -128,11 +130,19 @@ class WeMessage:
         for i in range(len(self.client_info['USER_ID'])):
             res = wm.send_template(self.client_info['USER_ID'][i], self.client_info['TEMPLATE_ID'], data0)
 
-            for value in[star_0, star_1]:
+            for value in [star_0, star_1]:
                 for key_message in value:
-                    res = wm.send_template(self.client_info['USER_ID'][i], "vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc",
-                                       key_message)
+                    if random.randint(0, 100) < 30:
+                        res = wm.send_template(self.client_info['USER_ID'][i],
+                                               "vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc",
+                                               key_message)
 
+        menses_message = Menses().out_message
+        menses_message = {"menses": {"value": menses_message}}
+        if random.randint(0, 100) < 30:
+            for i in range(len(self.client_info['USER_ID'])):
+                wm.send_template(self.client_info['USER_ID'][i], "2rTC0o4BDZHgH4DdUNIayGB8WF2NIs6OsdjM-ds9c9U",
+                                 menses_message)
 
         print("process have down")
 
@@ -152,7 +162,9 @@ if __name__ == "__main__":
 今日宋词推荐：{{song_words.DATA}}
 """
 
-
 """
 {{star.DATA}} 
+"""
+"""
+{{menses.DATA}}
 """
