@@ -8,6 +8,7 @@ import random
 import json
 import time
 
+
 """
 微信公众号平台  
 https://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index
@@ -198,7 +199,7 @@ class WeMessage:
         self.start()
 
     def _init_user_info(self):
-        import time
+
         self.now_time = time.strftime("%H:%M:%S", time.localtime())  # 现在的时间
         self.today = datetime.datetime.now()
         self.start_date = self.user0['START_DATE']
@@ -267,14 +268,16 @@ class WeMessage:
         client = WeChatClient(self.client_info['APP_ID'], self.client_info['APP_SECRET'])
         wm = WeChatMessage(client)
 
+        server_time = str(int(self.now_time[:2]) + 8) + self.now_time[2:]  # Github 时间比国内晚8小时
+
         # 判断时间
-        if "00:00:00" < self.now_time < "11:00:00":
+        if "00:00:00" < server_time < "11:00:00":
             self.send_daily_msg(wm)
-        if "11:00:00" < self.now_time < "14:00:00":
+        if "11:00:00" < server_time < "14:00:00":
             self.send_star_msg(wm)
-        if "18:00:00" < self.now_time < "24:00:00":
+        if "18:00:00" < server_time < "24:00:00":
             self.send_menses_msg(wm)
-        print(self.now_time)
+        print(server_time)
         print("process have down")
 
 
