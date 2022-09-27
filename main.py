@@ -16,7 +16,6 @@ https://www.tianapi.com
 
 """
 
-
 Tips = {
     "卵巢周期": {
         "卵泡期": [
@@ -95,15 +94,11 @@ def menstrual_dict(period_per_classes):
 
 class Menses:
 
-    def __init__(self):
-        self.menses_period = [
-            ("2022-5-30", "2022-6-5"),
-            ("2022-6-27", "2022-7-8"),
-            ("2022-7-30", "2022-8-5"),
-            ("2022-9-2", "2022-9-8"),
-        ]
+    def __init__(self, name, menses_period):
+        self.menses_period = menses_period
         # 经期,安全期（排卵前安全期),排卵前期（排卵期，危险期）,排卵日,排卵后期（排卵期，危险期）,安全期（排卵后安全期）
         self.menstrual_classes_period = [4, 4, 5, 1, 4, 10]
+        self.name = name
 
         menstrual_cycle = []
         pre_value = 0
@@ -119,20 +114,23 @@ class Menses:
     def own_sheet(self):
         sheet = menstrual_dict(self.menstrual_classes_period)
         time_now = f"{time.gmtime()[0]}-{time.gmtime()[1]}-{time.gmtime()[2]}"
-        last_menstrual_time = self.menses_period[-1][1]
+        last_menstrual_time = self.menses_period[-1][0]
+
         key_point = diff_time(last_menstrual_time, time_now)
         message = []
         for name in sheet.keys():
             for key, value in sheet[name].items():
                 if key_point in range(value[0], value[1]):
                     message.append(key)
+
         message = list(set(message))
         tips_message = []
         for key, v in Tips.items():
             for key, value in v.items():
                 if key in message:
                     tips_message.append(value)
-        out_message = "今天是悠然的"
+
+        out_message = f"今天是{self.name}的"
         for key in message:
             if key == message[-1]:
                 out_message += key
@@ -175,6 +173,7 @@ def star(key, star_name):
         else:
             message += f"{news['type']}: {news['content']}, "
     last_message = f"{data_json['newslist'][-1]['type']}：{data_json['newslist'][-1]['content']}"
+    print(message, last_message)
     return message, last_message
 
 
@@ -190,34 +189,19 @@ def get_random_color():
 
 
 class WeMessage:
-    def __init__(self, temp_id, tianapi_key):
-        self.tianapi_key = tianapi_key
-        self.user0 = {
-            'START_DATE': '2022-05-21',
-            'CITY': '苏州',
-            'BIRTHDAY': '11-8',
-        }
-        self.user1 = {
-            'START_DATE': '2022-05-21',
-            'CITY': '广州',
-            'BIRTHDAY': '05-19',
-        }
-
-        self.client_info = {
-            "APP_ID": 'wxaef11d8319d01eca',
-            "APP_SECRET": 'ef79f1e3ea77907101deb7c60fa1502a',
-            "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs', 'omr1N5sLmhG-9KNuZ0At5SgWK9aw'],
-            "TEMPLATE_ID": temp_id
-        }
-        # , 'omr1N5sLmhG-9KNuZ0At5SgWK9aw'
-
+    def __init__(self, user0, user1, client_info, tiannapi_api):
+        self.tianapi_api = tiannapi_api
+        self.user0 = user0
+        self.user1 = user1
+        self.client_info = client_info
         self._init_user_info()
         self.start()
 
     def _init_user_info(self):
+        import time
+        self.now_time = time.strftime("%H:%M:%S", time.localtime())  # 现在的时间
         self.today = datetime.datetime.now()
         self.start_date = self.user0['START_DATE']
-
         self.city0 = self.user0['CITY']
         self.city1 = self.user1['CITY']
         self.birthday0 = self.user0['BIRTHDAY']
@@ -234,57 +218,101 @@ class WeMessage:
         return (next - self.today).days
 
     def get_weather(self, city):
-        url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
+        url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city="+city
+
         res = requests.get(url).json()
         weather = res['data']['list'][0]
         weather_message = f"{weather['city']}, 天气：{weather['weather']}，" + f"温度：{math.floor(weather['temp'])}，" + f"湿度：{weather['humidity']}，" + f"风力等级：{weather['wind']}"
         return weather_message
 
-    def start(self):
-        client = WeChatClient(self.client_info['APP_ID'], self.client_info['APP_SECRET'])
-        wm = WeChatMessage(client)
+    def send_daily_msg(self, wm):
         weather_message0 = self.get_weather(self.user0['CITY'])
         weather_message1 = self.get_weather(self.user1['CITY'])
-        star_message0, last_message0 = star(self.tianapi_key, "天蝎座")
-        star_message1, last_message1 = star(self.tianapi_key, "金牛座")
-
         data0 = {
-            "date_date": {"value": str(self.today), "color": get_random_color()},
+            "date_date": {"value": '早上好，今天也要好好加油哦！ '+str(self.now_time), "color": get_random_color()},
             "weather_message0": {"value": weather_message0, "color": get_random_color()},
             "weather_message1": {"value": weather_message1},
             "love_days": {"value": self.get_count(), "color": "#%06x" % 0xFA8072},
             "birthday_left": {"value": self.get_birthday(self.user0['BIRTHDAY']), "color": "#%06x" % 0xFA8072},
             "words": {"value": get_words(), "color": get_random_color()},
-            "song_words": {"value": song_word(self.tianapi_key), "color": get_random_color()},
+            "song_words": {"value": song_word(self.tianapi_api), "color": get_random_color()},
         }
+        for i in range(len(self.client_info['USER_ID'])):
+            wm.send_template(self.client_info['USER_ID'][i], self.client_info['TEMPLATE_ID']['daily_id'], data0)
+
+    def send_star_msg(self, wm):
+        star_message0, last_message0 = star(self.tianapi_api, self.user0['STAR'])
+        star_message1, last_message1 = star(self.tianapi_api, self.user1['STAR'])
         star_0 = [{"star": {"value": star_message0, "color": "#%06x" % 0x8E236B}},
                   {"star": {"value": last_message0, "color": "#%06x" % 0x8E236B}}]
         star_1 = [{"star": {"value": star_message1, "color": "#%06x" % 0x8E236B}},
                   {"star": {"value": last_message1, "color": "#%06x" % 0x8E236B}}]
-
         for i in range(len(self.client_info['USER_ID'])):
-            res = wm.send_template(self.client_info['USER_ID'][i], self.client_info['TEMPLATE_ID'], data0)
-            if random.randint(0, 100) < 30:
-                for value in [star_0, star_1]:
-                    for key_message in value:
-                        res = wm.send_template(self.client_info['USER_ID'][i],
-                                               "vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc",
-                                               key_message)
+            for value in [star_0, star_1]:
+                for key_message in value:
+                    wm.send_template(self.client_info['USER_ID'][i],
+                                     self.client_info['TEMPLATE_ID']['star_id'],
+                                     key_message)
 
-        menses_message = Menses().out_message
-        menses_message = {"menses": {"value": menses_message}}
-        if random.randint(0, 100) < 30:
-            for i in range(len(self.client_info['USER_ID'])):
-                wm.send_template(self.client_info['USER_ID'][i], "2rTC0o4BDZHgH4DdUNIayGB8WF2NIs6OsdjM-ds9c9U",
-                                 menses_message)
+    def send_menses_msg(self, wm):
+        menses_message = Menses(name=self.user0['NAME'], menses_period=self.user0['MENSES_PERIOD']).out_message
+        menses_message = {"menses": {"value": '晚上好啊，到休息时间啦！'+menses_message}}
+        print(menses_message)
+        for i in range(len(self.client_info['USER_ID'])):
+            wm.send_template(self.client_info['USER_ID'][i],
+                             self.client_info['TEMPLATE_ID']['menses_id'],
+                             menses_message)
 
+    def start(self):
+        client = WeChatClient(self.client_info['APP_ID'], self.client_info['APP_SECRET'])
+        wm = WeChatMessage(client)
+
+        # 判断时间
+        if "00:00:00" < self.now_time < "11:00:00":
+            self.send_daily_msg(wm)
+        if "11:00:00" < self.now_time < "14:00:00":
+            self.send_star_msg(wm)
+        if "18:00:00" < self.now_time < "24:00:00":
+            self.send_menses_msg(wm)
+        print(self.now_time)
         print("process have down")
 
 
 if __name__ == "__main__":
-    tianapi_key = '54601312395bae03a51ec6d7fe2d8ee6'
-    temp_id = "XmIP9fiQ1ML8mhcYXl-0Dkz_1tpfMvP7PMFNSlw8Vpo"
-    WeMessage(temp_id, tianapi_key)
+    tianapi_api = '54601312395bae03a51ec6d7fe2d8ee6'  # 第三方接口的key
+    user0 = {
+        "NAME": '悠然',
+        'START_DATE': '2022-05-21',
+        'CITY': '苏州',
+        'BIRTHDAY': '11-8',
+        'STAR': '天蝎座',
+        'MENSES_PERIOD': [
+            ("2022-5-30", "2022-6-5"),
+            ("2022-6-27", "2022-7-8"),
+            ("2022-7-30", "2022-8-5"),
+            ("2022-9-2", "2022-9-8"),
+            ("2022-9-26", None),
+        ]
+    }  # 女生的信息
+    user1 = {
+        "NAME": '子轩',
+        'STAR': '金牛座',
+        'START_DATE': '2022-05-21',
+        'CITY': '广州',
+        'BIRTHDAY': '05-19',
+    }  # 男生的信息
+
+    client_info = {
+        "APP_ID": 'wxaef11d8319d01eca',
+        "APP_SECRET": 'ef79f1e3ea77907101deb7c60fa1502a',
+        "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs', 'omr1N5sLmhG-9KNuZ0At5SgWK9aw'],
+        "TEMPLATE_ID": {
+            'daily_id': 'XmIP9fiQ1ML8mhcYXl-0Dkz_1tpfMvP7PMFNSlw8Vpo',
+            'star_id': 'vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc',
+            'menses_id': '2rTC0o4BDZHgH4DdUNIayGB8WF2NIs6OsdjM-ds9c9U'
+        }
+    }
+    WeMessage(user0, user1, client_info, tianapi_api)
 
 """
 目前时间是：{{date_date.DATA}}
@@ -299,6 +327,7 @@ if __name__ == "__main__":
 """
 {{star.DATA}} 
 """
+
 """
 {{menses.DATA}}
 """
