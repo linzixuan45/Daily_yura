@@ -270,17 +270,24 @@ class WeMessage:
         weather_message0 = self.get_weather(self.user0['CITY'])
         weather_message1 = self.get_weather(self.user1['CITY'])
         data0 = {
-            "date_date": {"value": '早上好，今天也要好好加油哦！ ' + str(server_time), "color": get_random_color()},
-            "zaoan": {"value": morning_msg(self.tianapi_api)},
+            "date_date": {"value": str(server_time)+'，今天也要加油哦!', "color": get_random_color()},
+            "zaoan": {"value": morning_msg(self.tianapi_api), "color": get_random_color()},
             "weather_message0": {"value": weather_message0, "color": get_random_color()},
             "weather_message1": {"value": weather_message1},
             "love_days": {"value": self.get_count(), "color": "#%06x" % 0xFA8072},
             "birthday_left": {"value": self.get_birthday(self.user0['BIRTHDAY']), "color": "#%06x" % 0xFA8072},
+
+        }
+        data1 = {
             "words": {"value": get_words(), "color": get_random_color()},
             "song_words": {"value": song_word(self.tianapi_api), "color": get_random_color()},
         }
         for i in range(len(self.client_info['USER_ID'])):
-            wm.send_template(self.client_info['USER_ID'][i], self.client_info['TEMPLATE_ID']['daily_id'], data0)
+            wm.send_template(self.client_info['USER_ID'][i], self.client_info['TEMPLATE_ID']['daily_id1'], data0)
+            wm.send_template(self.client_info['USER_ID'][i], self.client_info['TEMPLATE_ID']['daily_id2'], data1)
+
+
+
 
     def send_star_msg(self, wm):
         star_message0, last_message0 = star(self.tianapi_api, self.user0['STAR'])
@@ -343,7 +350,7 @@ class WeMessage:
         client = WeChatClient(self.client_info['APP_ID'], self.client_info['APP_SECRET'])
         wm = WeChatMessage(client)
 
-        server_time = str(int(self.now_time[:2]) + 8) + self.now_time[2:]  # Github 时间比国内早8小时
+        server_time = str((int(self.now_time[:2]) + 8) % 24) + self.now_time[2:]  # Github 时间比国内早8小时
         # server_time = self.now_time
 
         # 判断时间
@@ -356,6 +363,10 @@ class WeMessage:
         if "21:00:00" < server_time < "24:00:00":
             self.send_night_msg(wm, server_time)
 
+        # self.send_daily_msg(wm, server_time)
+        # self.send_star_msg(wm)
+        # self.send_menses_msg(wm)
+        # self.send_night_msg(wm, server_time)
         print(server_time)
         print("process have down")
 
@@ -385,23 +396,21 @@ if __name__ == "__main__":
         'CITY': '广州',
         'BIRTHDAY': '05-19',
     }  # 男生的信息
-
+    # , 'omr1N5sLmhG-9KNuZ0At5SgWK9aw'
     client_info = {
         "APP_ID": 'wxaef11d8319d01eca',
         "APP_SECRET": 'ef79f1e3ea77907101deb7c60fa1502a',
-        "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs','omr1N5sLmhG-9KNuZ0At5SgWK9aw' ],
+        "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs', 'omr1N5sLmhG-9KNuZ0At5SgWK9aw'],
+        # "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs'],
         "TEMPLATE_ID": {
-            'daily_id': 'XmIP9fiQ1ML8mhcYXl-0Dkz_1tpfMvP7PMFNSlw8Vpo',
-            'star_id': 'vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc',
+            'daily_id1': 'Kyyl3f7JxD72SaeC-zwv-4lf_tTxZwkAJ6cLR0qTY-4',
+            'daily_id2': 'MJ0faGfHrbNNRytyTC4fCcK-0bKbJDTKS6awxQV6iNI',
+            'star_id':   'vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc',
             'menses_id': '2rTC0o4BDZHgH4DdUNIayGB8WF2NIs6OsdjM-ds9c9U',
-            'night_id': 'Z60JmU38hQ80nB_jIF1Y0eXcmId3UTHTthRniuUi7T0',
-            'story_id': '5I4PnlNUA84BuMNF13eG1JDIWOsv2KSkW7DB7K_SUi0',
+            'night_id':  'Z60JmU38hQ80nB_jIF1Y0eXcmId3UTHTthRniuUi7T0',
+            'story_id':  '5I4PnlNUA84BuMNF13eG1JDIWOsv2KSkW7DB7K_SUi0',
         }
     }
-    # story(tianapi_api)
-    # health(tianapi_api)
-    # night_msg(tianapi_api)
-    # morning_msg(tianapi_api)
     WeMessage(user0, user1, client_info, tianapi_api)
 
 """
@@ -411,10 +420,12 @@ if __name__ == "__main__":
 距离她的生日：{{birthday_left.DATA}}天 
 她所在的城市：{{weather_message0.DATA}}
 他所在的城市：{{weather_message1.DATA}}
-今日想对然然说的话：{{words.DATA}}
-今日宋词推荐：{{song_words.DATA}}
 """
 
+"""
+今日想对然然说的话：{{words.DATA}}
+{{song_words.DATA}}
+"""
 """
 晚上好啊，悠然
 目前的时间是：{{date_date.DATA}}
