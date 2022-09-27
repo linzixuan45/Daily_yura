@@ -8,7 +8,6 @@ import random
 import json
 import time
 
-
 """
 微信公众号平台  
 https://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index
@@ -23,9 +22,9 @@ Tips = {
             "卵泡期由上次月经停止日开始至卵巢排卵日止，历时10～12天。在这一期中，此期卵泡的粒膜细胞在FSH和LH的作用下产生雌激素，在雌激素的作用下，子宫内膜迅速增殖，血管增生，腺体增宽加长，但不分泌。"],
         "排卵日": [""],
         "黄体期": ["黄体期主要是指女性在排卵期到月经来之前的一个特定阶段，在这段时间内就有可能形成黄体，"
-                   "同时会形成生理性的体温增高。排卵之后，卵子和卵泡液流出，卵泡腔下降、塌陷，与周围的结缔组织包绕，从而形成黄体。"
-                   "黄体能够分泌雌孕激素，如果患者没有怀孕，雌孕激素会迅速的下降，在维持14天左右体温也会下降，同时来月经。如果怀孕之后，"
-                   "黄体则继续起到分泌功能，能够分泌雌孕激素，促进并支持胚胎的发育。如果患者出现黄体功能不全，患者则会出现胚胎停止发育，甚至习惯性流产。"]
+                "同时会形成生理性的体温增高。排卵之后，卵子和卵泡液流出，卵泡腔下降、塌陷，与周围的结缔组织包绕，从而形成黄体。"
+                "黄体能够分泌雌孕激素，如果患者没有怀孕，雌孕激素会迅速的下降，在维持14天左右体温也会下降，同时来月经。如果怀孕之后，"
+                "黄体则继续起到分泌功能，能够分泌雌孕激素，促进并支持胚胎的发育。如果患者出现黄体功能不全，患者则会出现胚胎停止发育，甚至习惯性流产。"]
     },
     "子宫周期": {
         "经期": [""],
@@ -37,8 +36,8 @@ Tips = {
     },
     "俗称": {
         "经期": ["在饮食方面，月经期间要避免进食辛辣、凉、冷、硬的食物,要注意下腹部的保暖"
-                 "因为寒冷有可能会导致痛经的发生,月经期间可以进行温和的运动，例如散步、快走等，但是要避免剧烈的运动"
-                 "月经期间一定要注意外阴的清洁，要每天清洗外阴，使用棉质透气的卫生巾，并且要及时更换卫生巾"],
+                "因为寒冷有可能会导致痛经的发生,月经期间可以进行温和的运动，例如散步、快走等，但是要避免剧烈的运动"
+                "月经期间一定要注意外阴的清洁，要每天清洗外阴，使用棉质透气的卫生巾，并且要及时更换卫生巾"],
         "安全期（排卵前安全期)": ["安全期避孕并非绝对安全，只是受孕机率小些。 安全期避孕并非绝对安全，只是受孕机率小些"
                                  "如果是在月经刚干净的三天内，一般这个时间段同房是不会怀孕的，也可以不带避孕套"],
         "排卵前期（排卵期，危险期）": ["在排卵期的时候白带会明显的增多，在这个时候一定要注意好个人的卫生，建议勤换内裤"
@@ -162,6 +161,17 @@ def song_word(key):
     return message
 
 
+def story(key):
+    url = f"http://api.tianapi.com/story/index?key={key}"
+    ret = requests.get(url)
+    ret = ret.content.decode('utf8').replace("'", '"')
+    data_json = json.loads(ret)
+    title = data_json['newslist'][0]['title']
+    content = data_json['newslist'][0]['content']
+    print(title, content)
+    return title, content
+
+
 def star(key, star_name):
     url = f"http://api.tianapi.com/star/index?key={key}&astro={star_name}"
     ret = requests.get(url)
@@ -176,6 +186,36 @@ def star(key, star_name):
     last_message = f"{data_json['newslist'][-1]['type']}：{data_json['newslist'][-1]['content']}"
     print(message, last_message)
     return message, last_message
+
+
+def health(key):
+    url = f"http://api.tianapi.com/healthtip/index?key={key}"
+    ret = requests.get(url)
+    ret = ret.content.decode('utf8').replace("'", '"')
+    data_json = json.loads(ret)
+    msg = data_json['newslist'][-1]['content']
+    print(msg)
+    return msg
+
+
+def night_msg(key):
+    url = f"http://api.tianapi.com/wanan/index?key={key}"
+    ret = requests.get(url)
+    ret = ret.content.decode('utf8').replace("'", '"')
+    data_json = json.loads(ret)
+    msg = data_json['newslist'][-1]['content']
+    print(msg)
+    return msg
+
+
+def morning_msg(key):
+    url = f"http://api.tianapi.com/zaoan/index?key={key}"
+    ret = requests.get(url)
+    ret = ret.content.decode('utf8').replace("'", '"')
+    data_json = json.loads(ret)
+    msg = data_json['newslist'][-1]['content']
+    print(msg)
+    return msg
 
 
 def get_words():
@@ -219,18 +259,19 @@ class WeMessage:
         return (next - self.today).days
 
     def get_weather(self, city):
-        url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city="+city
+        url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
 
         res = requests.get(url).json()
         weather = res['data']['list'][0]
         weather_message = f"{weather['city']}, 天气：{weather['weather']}，" + f"温度：{math.floor(weather['temp'])}，" + f"湿度：{weather['humidity']}，" + f"风力等级：{weather['wind']}"
         return weather_message
 
-    def send_daily_msg(self, wm):
+    def send_daily_msg(self, wm, server_time):
         weather_message0 = self.get_weather(self.user0['CITY'])
         weather_message1 = self.get_weather(self.user1['CITY'])
         data0 = {
-            "date_date": {"value": '早上好，今天也要好好加油哦！ '+str(self.now_time), "color": get_random_color()},
+            "date_date": {"value": '早上好，今天也要好好加油哦！ ' + str(server_time), "color": get_random_color()},
+            "zaoan": {"value": morning_msg(self.tianapi_api)},
             "weather_message0": {"value": weather_message0, "color": get_random_color()},
             "weather_message1": {"value": weather_message1},
             "love_days": {"value": self.get_count(), "color": "#%06x" % 0xFA8072},
@@ -256,32 +297,72 @@ class WeMessage:
                                      key_message)
 
     def send_menses_msg(self, wm):
-        menses_message = Menses(name=self.user0['NAME'], menses_period=self.user0['MENSES_PERIOD']).out_message
-        menses_message = {"menses": {"value": '晚上好啊，到休息时间啦！'+menses_message}}
-        print(menses_message)
+        content = Menses(name=self.user0['NAME'], menses_period=self.user0['MENSES_PERIOD']).out_message
+        wechat_max_index = 180
+        times = int(len(content)/wechat_max_index)+1 \
+            if int(len(content)/wechat_max_index) < len(content)/wechat_max_index else len(content)/wechat_max_index
+
+        for j in range(times):
+            temp_msg = content[j*wechat_max_index:(j+1)*wechat_max_index]
+            send_msg = {"menses": {"value": temp_msg}}
+            for i in range(len(self.client_info['USER_ID'])):
+                wm.send_template(self.client_info['USER_ID'][i],
+                                 self.client_info['TEMPLATE_ID']['menses_id'],
+                                 send_msg)
+
+    def send_night_msg(self, wm, server_time):
+        msg0 = {
+            "date_date": {'value': server_time, 'color': get_random_color()},
+            'health': {'value': health(self.tianapi_api), 'color': get_random_color()},
+            'wanan': {'value': night_msg(self.tianapi_api), 'color': get_random_color()}
+        }
+
+        title, content = story(self.tianapi_api)
+
         for i in range(len(self.client_info['USER_ID'])):
             wm.send_template(self.client_info['USER_ID'][i],
-                             self.client_info['TEMPLATE_ID']['menses_id'],
-                             menses_message)
+                             self.client_info['TEMPLATE_ID']['night_id'],
+                             msg0)
+
+        wechat_max_index = 180
+        times = int(len(content)/wechat_max_index)+1 \
+            if int(len(content)/wechat_max_index) < len(content)/wechat_max_index else len(content)/wechat_max_index
+
+        for i in range(times):
+            temp_msg = content[i*wechat_max_index:(i+1)*wechat_max_index]
+            msg1 = {
+                'title': {'value': title, "color": "#%06x" % 0xFA8072},
+                'content': {'value': temp_msg}
+            }
+            for j in range(len(self.client_info['USER_ID'])):
+                wm.send_template(self.client_info['USER_ID'][j],
+                                 self.client_info['TEMPLATE_ID']['story_id'],
+                                 msg1)
 
     def start(self):
         client = WeChatClient(self.client_info['APP_ID'], self.client_info['APP_SECRET'])
         wm = WeChatMessage(client)
 
-        server_time = str(int(self.now_time[:2]) + 8) + self.now_time[2:]  # Github 时间比国内晚8小时
+        server_time = str(int(self.now_time[:2]) + 8) + self.now_time[2:]  # Github 时间比国内早8小时
+        # server_time = self.now_time
 
         # 判断时间
         if "00:00:00" < server_time < "11:00:00":
-            self.send_daily_msg(wm)
+            self.send_daily_msg(wm, server_time)
         if "11:00:00" < server_time < "14:00:00":
             self.send_star_msg(wm)
-        if "18:00:00" < server_time < "24:00:00":
+        if "18:00:00" < server_time < "21:00:00":
             self.send_menses_msg(wm)
+        if "21:00:00" < server_time < "24:00:00":
+            self.send_night_msg(wm, server_time)
+
         print(server_time)
         print("process have down")
 
 
 if __name__ == "__main__":
+    wechat_max_index = 180
+
     tianapi_api = '54601312395bae03a51ec6d7fe2d8ee6'  # 第三方接口的key
     user0 = {
         "NAME": '悠然',
@@ -304,27 +385,45 @@ if __name__ == "__main__":
         'CITY': '广州',
         'BIRTHDAY': '05-19',
     }  # 男生的信息
-
+# 'omr1N5sLmhG-9KNuZ0At5SgWK9aw'
     client_info = {
         "APP_ID": 'wxaef11d8319d01eca',
         "APP_SECRET": 'ef79f1e3ea77907101deb7c60fa1502a',
-        "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs', 'omr1N5sLmhG-9KNuZ0At5SgWK9aw'],
+        "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs', ],
         "TEMPLATE_ID": {
             'daily_id': 'XmIP9fiQ1ML8mhcYXl-0Dkz_1tpfMvP7PMFNSlw8Vpo',
             'star_id': 'vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc',
-            'menses_id': '2rTC0o4BDZHgH4DdUNIayGB8WF2NIs6OsdjM-ds9c9U'
+            'menses_id': '2rTC0o4BDZHgH4DdUNIayGB8WF2NIs6OsdjM-ds9c9U',
+            'night_id': 'Z60JmU38hQ80nB_jIF1Y0eXcmId3UTHTthRniuUi7T0',
+            'story_id': '5I4PnlNUA84BuMNF13eG1JDIWOsv2KSkW7DB7K_SUi0',
         }
     }
+    # story(tianapi_api)
+    # health(tianapi_api)
+    # night_msg(tianapi_api)
+    # morning_msg(tianapi_api)
     WeMessage(user0, user1, client_info, tianapi_api)
 
 """
 目前时间是：{{date_date.DATA}}
+早安寄语：{{zaoan.DATA}}
 今天是我们的第：{{love_days.DATA}}天 
 距离她的生日：{{birthday_left.DATA}}天 
 她所在的城市：{{weather_message0.DATA}}
 他所在的城市：{{weather_message1.DATA}}
 今日想对然然说的话：{{words.DATA}}
 今日宋词推荐：{{song_words.DATA}}
+"""
+
+"""
+晚上好啊，悠然
+目前的时间是：{{date_date.DATA}}
+一个有趣的健康知识：{{health.DATA}}
+晚安寄语：{{wanan.DATA}}
+"""
+"""
+{{title.DATA}}
+{{content.DATA}}
 """
 
 """
