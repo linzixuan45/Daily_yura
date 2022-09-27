@@ -385,11 +385,11 @@ if __name__ == "__main__":
         'CITY': '广州',
         'BIRTHDAY': '05-19',
     }  # 男生的信息
-# 'omr1N5sLmhG-9KNuZ0At5SgWK9aw'
+
     client_info = {
         "APP_ID": 'wxaef11d8319d01eca',
         "APP_SECRET": 'ef79f1e3ea77907101deb7c60fa1502a',
-        "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs', ],
+        "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs','omr1N5sLmhG-9KNuZ0At5SgWK9aw' ],
         "TEMPLATE_ID": {
             'daily_id': 'XmIP9fiQ1ML8mhcYXl-0Dkz_1tpfMvP7PMFNSlw8Vpo',
             'star_id': 'vxbFxhPLsjnsZYqPgXHrsdZbAfJictedz-jEzE7yWLc',
