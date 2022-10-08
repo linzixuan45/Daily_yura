@@ -7,7 +7,7 @@ on:
   push:
   schedule:
   # 定时任务，在每天的5点推送天气信息到邮箱
-    - cron: '05 2,4,10,15 * * *'
+    - cron: '30 2,4,10,15 * * *'
     
   pull_request:
     branches: [ "main" ]
