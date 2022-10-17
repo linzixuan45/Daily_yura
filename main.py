@@ -354,9 +354,9 @@ class WeMessage:
         # server_time = self.now_time
 
         # 判断时间
-        if "09:00:00" < server_time < "11:00:00":
+        if "09:00:00" < server_time < "12:40:00":
             self.send_daily_msg(wm, server_time)
-        if "11:00:00" < server_time < "14:00:00":
+        if "12:40:00" < server_time < "14:00:00":
             self.send_star_msg(wm)
         if "18:00:00" < server_time < "21:00:00":
             self.send_menses_msg(wm)
