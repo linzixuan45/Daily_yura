@@ -400,7 +400,7 @@ if __name__ == "__main__":
     client_info = {
         "APP_ID": 'wxaef11d8319d01eca',
         "APP_SECRET": 'ef79f1e3ea77907101deb7c60fa1502a',
-        "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs', 'omr1N5sLmhG-9KNuZ0At5SgWK9aw'],
+        "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs', 'omr1N5sLmhG-9KNuZ0At5SgWK9aw','omr1N5n6k9OMfbRMG6wxXV9jkfEY','omr1N5s5QL93UR3LKat-nPR10qtM'],
         # "USER_ID": ['omr1N5l9KdGm7LtNGPfrJET3qrGs'],
         "TEMPLATE_ID": {
             'daily_id1': 'Kyyl3f7JxD72SaeC-zwv-4lf_tTxZwkAJ6cLR0qTY-4',
